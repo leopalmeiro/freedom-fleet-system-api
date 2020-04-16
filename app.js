@@ -3,16 +3,25 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+var schema = require('./graphql/vehicleSchemas');
 //mongo dependencies
 var mongoose = require('mongoose');
 
+
+mongoose.connect('mongodb://localhost/freedom-fleet-api', { promiseLibrary: require('bluebird'), useNewUrlParser: true })
+  .then(() =>  console.log('connection successful'))
+  .catch((err) => console.error(err));
+
+
+ // Express App 
+var app = express();
+
+
 //graphql dependencies
 var graphqlHTTP = require('express-graphql');
-var schema = require('./graphql/bookSchema');
 var cors = require("cors");
 
 app.use('*', cors());
@@ -23,17 +32,10 @@ app.use('/graphql', cors(), graphqlHTTP({
 }));
 
 
-mongoose.connect('mongodb://localhost/freedom-fleet-api', { promiseLibrary: require('bluebird'), useNewUrlParser: true })
-  .then(() =>  console.log('connection successful'))
-  .catch((err) => console.error(err));
-
-  
-var app = express();
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
+//set Loggger
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
