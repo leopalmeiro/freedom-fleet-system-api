@@ -9,9 +9,11 @@ var usersRouter = require('./routes/users');
 var schema = require('./graphql/vehicleSchemas');
 //mongo dependencies
 var mongoose = require('mongoose');
+mongoose.set('useFindAndModify', false);
 
 
-mongoose.connect('mongodb://localhost/freedom-fleet-api', { promiseLibrary: require('bluebird'), useNewUrlParser: true })
+//instance of data base
+mongoose.connect('mongodb://localhost/freedom-fleet-api', { promiseLibrary: require('bluebird'), useNewUrlParser: true , useFindAndModify: false })
   .then(() =>  console.log('connection successful'))
   .catch((err) => console.error(err));
 
