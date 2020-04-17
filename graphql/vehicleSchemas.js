@@ -65,7 +65,7 @@ var queryType = new GraphQLObjectType({
         args: {
           id: {
             name: "_id",
-            type: GraphQLInt,
+            type: GraphQLString,
           },
         },
         resolve: function (root, params) {
