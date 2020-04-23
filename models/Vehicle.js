@@ -10,16 +10,5 @@ var VehicleSchema = new mongoose.Schema({
   dt_created: { type: Date, default: Date.now },
   dt_updated: Date,
 });
-/* 
-VehicleSchema.pre('save', function(next) {
-  //console.log(`pre ${this.id}`);
-  this.qrdata = this.id;
-  next();
-});
-VehicleSchema.post('save', function(doc,next) {
-  console.log(`pos ${doc}`);
-  this.qrdata = doc.id;
-  next();
-}); */
 
 module.exports = mongoose.model('Vehicle', VehicleSchema);

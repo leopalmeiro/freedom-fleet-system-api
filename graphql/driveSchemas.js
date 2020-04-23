@@ -8,72 +8,72 @@ var GraphQLID = require("graphql").GraphQLID;
 var GraphQLString = require("graphql").GraphQLString;
 var GraphQLInt = require("graphql").GraphQLInt;
 var GraphQLDate = require("graphql-date");
-const crypto = require('crypto')
+const crypto = require('crypto');
 
-//add VehicleModel
-var VehicleModel = require("../models/Vehicle");
+//add DriveModel
+const DriverModel = require("../models/Driver");
 
-//create the object of Vehicle model
-var vehicleType = new GraphQLObjectType({
-  name: "vehicle",
+//create the object of Driver model
+var driverType = new GraphQLObjectType({
+  name: "driver",
   fields: function () {
     return {
-      _id: {
+      id: {
         type: GraphQLString,
       },
-      type: {
+      name: {
         type: GraphQLString,
       },
-      model: {
-        type: GraphQLString,
-      },
-      year: {
-        type: GraphQLInt,
-      },
-      plate: {
-        type: GraphQLString,
-      },
-      qrdata: {
-        type: GraphQLString,
-      },
-      dt_updated: {
+      birthdate: {
         type: GraphQLDate,
       },
+      image: {
+        type: GraphQLString,
+      },
+      pass: {
+        type: GraphQLString,
+      },
+      email: {
+        type: GraphQLString,
+      },
       dt_created: {
+        type: GraphQLDate,
+      },
+      dt_updated: {
         type: GraphQLDate,
       },
     };
   },
 });
-//create a list of type
-var queryType = new GraphQLObjectType({
+//create a list of Driver
+const queryType = new GraphQLObjectType({
   name: "Query",
   fields: function () {
     return {
-      vehicles: {
-        type: new GraphQLList(vehicleType),
+      drivers: {
+        type: new GraphQLList(driverType),
         resolve: function () {
-          let vehicles = VehicleModel.find().exec();
-          if (!vehicles) {
+          let drivers = DriverModel.find().exec();
+          if (!drivers) {
             throw new Error("Error");
           }
-          return vehicles;
+          return drivers;
         },
       },
-      vehicle: {
-        type: vehicleType,
+      drive: {
+        type: driveType,
         args: {
           id: {
-            name: "_id",
+            name: "id",
             type: GraphQLString,
           },
         },
         resolve: function (root, params) {
-          const vehicleDetails = VehicleModel.findById(params.id).exec();
-          if (!vehicleDetails) {
+          const driverDetails = DriverModel.findById(params.id).exec();
+          if (!driverDetails) {
             throw new Error("Error");
           }
-          return vehicleDetails;
+          return driverDetails;
         },
       },
     };
@@ -85,70 +85,71 @@ var mutation = new GraphQLObjectType({
   name: "Mutation",
   fields: function () {
     return {
-      addVehicle: {
-        type: vehicleType,
+      addDriver: {
+        type: driveType,
         args: {
-          type: {
+          name: {
             type: new GraphQLNonNull(GraphQLString),
           },
-          model: {
-            type: new GraphQLNonNull(GraphQLString),
+          birthdate: {
+            type: new GraphQLNonNull(GraphQLDate),
           },
-          year: {
+          image: {
             type: new GraphQLNonNull(GraphQLInt),
           },
-          plate: {
+          email: {
             type: new GraphQLNonNull(GraphQLString),
-          },
-          qrdata: {
-            type: GraphQLString,
           },
         },
         resolve: function(root, params) {
-          const vehicleModel = new VehicleModel(params);
-          const newVehicle = vehicleModel.save().then((result) => {
+          const driverModel = new DriverModel(params);
+          const newDrive = driverModel.save().then((result) => {
             console.log(result);
-            return VehicleModel.findByIdAndUpdate(
-              result._id,
+            return DriverModel.findByIdAndUpdate(
+              result.id,
               {
-                qrdata: crypto.createHash('md5').update('result._id').digest("hex")
+                //set initial pass freedom
+                pass: crypto.createHash('md5').update('freedom').digest("hex")
               },
               function (err) {
                 if (err) return next(err);
               }
             );
           });
-          return newVehicle;
+          return newDrive;
         },
       },
-      updateVehicle: {
-        type: vehicleType,
+      updateDriver: {
+        type: driverType,
         args: {
           id: {
             type: new GraphQLNonNull(GraphQLString),
           },
-          type: {
+          name: {
             type: new GraphQLNonNull(GraphQLString),
           },
-          model: {
+          birthdate: {
+            type: new GraphQLNonNull(GraphQLDate),
+          },
+          image: {
             type: new GraphQLNonNull(GraphQLString),
           },
-          year: {
-            type: new GraphQLNonNull(GraphQLInt),
-          },
-          plate: {
+          email: {
             type: new GraphQLNonNull(GraphQLString),
           },
+          pass: {
+            type: new GraphQLNonNull(GraphQLString),
+          }
         },
         resolve(root, params) {
-          return VehicleModel.findByIdAndUpdate(
+          return DriverModel.findByIdAndUpdate(
             params.id,
             {
               name: params.name,
-              model: params.model,
-              year: params.year,
-              plate: params.plate,
-              qrdata: params.qrdata,
+              birthdate: params.birthdate,
+              image: params.image,
+              pass: params.pass,
+              email: params.email,
               dt_updated: Date.now(),
             },
             function (err) {
@@ -157,19 +158,19 @@ var mutation = new GraphQLObjectType({
           );
         },
       },
-      removeVehicle: {
-        type: vehicleType,
+      removeDrive: {
+        type: driverType,
         args: {
           id: {
             type: new GraphQLNonNull(GraphQLString),
           },
         },
         resolve(root, params) {
-          const remVehicle = VehicleModel.findByIdAndRemove(params.id).exec();
-          if (!remVehicle) {
+          const remDrive = DriverModel.findByIdAndRemove(params.id).exec();
+          if (!remDrive) {
             throw new Error("Error");
           }
-          return remVehicle;
+          return remDrive;
         },
       },
     };
@@ -178,4 +179,3 @@ var mutation = new GraphQLObjectType({
 
 //export module
 module.exports = new GraphQLSchema({ query: queryType, mutation: mutation });
-//module.exports = new GraphQLSchema({query: queryType});
