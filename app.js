@@ -6,7 +6,11 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
-var schema = require('./graphql/vehicleSchemas');
+var schema = require('./graphql/index');
+
+var schema = schema;
+
+// var schema =  buildSchema(
 //mongo dependencies
 var mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);

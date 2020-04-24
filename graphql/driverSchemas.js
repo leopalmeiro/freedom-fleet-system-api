@@ -60,8 +60,8 @@ const queryType = new GraphQLObjectType({
           return drivers;
         },
       },
-      drive: {
-        type: driveType,
+      driver: {
+        type: driverType,
         args: {
           id: {
             name: "id",
@@ -86,7 +86,7 @@ var mutation = new GraphQLObjectType({
   fields: function () {
     return {
       addDriver: {
-        type: driveType,
+        type: driverType,
         args: {
           name: {
             type: new GraphQLNonNull(GraphQLString),
