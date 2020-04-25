@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var bodyParser = require('body-parser');
 
 var schema = require('./graphql/index');
 
@@ -31,10 +32,12 @@ var graphqlHTTP = require('express-graphql');
 var cors = require("cors");
 
 app.use('*', cors());
+app.use(bodyParser.json({limit: '20mb'}));
 app.use('/graphql', cors(), graphqlHTTP({
   schema: schema,
   rootValue: global,
   graphiql: true,
+
 }));
 
 

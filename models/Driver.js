@@ -7,8 +7,8 @@ const DriverSchema = new mongoose.Schema({
   image: String,
   pass: String,
   email: String,
-  dt_create: {type: Date, default: Date.now()},
-  dt_update: Date,
+  dt_created: {type: Date, default: Date.now()},
+  dt_updated: Date,
 });
 
 module.exports = mongoose.model('Driver', DriverSchema);

@@ -1,24 +1,24 @@
 //add dependencies od GraphQL
-var GraphQLSchema = require("graphql").GraphQLSchema;
-var GraphQLObjectType = require("graphql").GraphQLObjectType;
-var GraphQLList = require("graphql").GraphQLList;
-var GraphQLObjectType = require("graphql").GraphQLObjectType;
-var GraphQLNonNull = require("graphql").GraphQLNonNull;
-var GraphQLID = require("graphql").GraphQLID;
-var GraphQLString = require("graphql").GraphQLString;
-var GraphQLInt = require("graphql").GraphQLInt;
-var GraphQLDate = require("graphql-date");
+var GraphQLSchema = require('graphql').GraphQLSchema;
+var GraphQLObjectType = require('graphql').GraphQLObjectType;
+var GraphQLList = require('graphql').GraphQLList;
+var GraphQLObjectType = require('graphql').GraphQLObjectType;
+var GraphQLNonNull = require('graphql').GraphQLNonNull;
+var GraphQLID = require('graphql').GraphQLID;
+var GraphQLString = require('graphql').GraphQLString;
+var GraphQLInt = require('graphql').GraphQLInt;
+var GraphQLDate = require('graphql-date');
 const crypto = require('crypto');
 
 //add DriveModel
-const DriverModel = require("../models/Driver");
+const DriverModel = require('../models/Driver');
 
 //create the object of Driver model
 var driverType = new GraphQLObjectType({
-  name: "driver",
+  name: 'driver',
   fields: function () {
     return {
-      id: {
+      _id: {
         type: GraphQLString,
       },
       name: {
@@ -47,7 +47,7 @@ var driverType = new GraphQLObjectType({
 });
 //create a list of Driver
 const queryType = new GraphQLObjectType({
-  name: "Query",
+  name: 'Query',
   fields: function () {
     return {
       drivers: {
@@ -55,7 +55,7 @@ const queryType = new GraphQLObjectType({
         resolve: function () {
           let drivers = DriverModel.find().exec();
           if (!drivers) {
-            throw new Error("Error");
+            throw new Error('Error');
           }
           return drivers;
         },
@@ -64,14 +64,14 @@ const queryType = new GraphQLObjectType({
         type: driverType,
         args: {
           id: {
-            name: "id",
+            name: '_id',
             type: GraphQLString,
           },
         },
         resolve: function (root, params) {
           const driverDetails = DriverModel.findById(params.id).exec();
           if (!driverDetails) {
-            throw new Error("Error");
+            throw new Error('Error');
           }
           return driverDetails;
         },
@@ -82,7 +82,7 @@ const queryType = new GraphQLObjectType({
 
 //add operation of mutation add, remove and update
 var mutation = new GraphQLObjectType({
-  name: "Mutation",
+  name: 'Mutation',
   fields: function () {
     return {
       addDriver: {
@@ -95,27 +95,25 @@ var mutation = new GraphQLObjectType({
             type: new GraphQLNonNull(GraphQLDate),
           },
           image: {
-            type: new GraphQLNonNull(GraphQLInt),
+            type: new GraphQLNonNull(GraphQLString),
           },
           email: {
             type: new GraphQLNonNull(GraphQLString),
           },
+          pass: {
+            type: GraphQLString,
+            defaultValue: crypto
+              .createHash('md5')
+              .update('freedom')
+              .digest('hex'),
+          },
         },
-        resolve: function(root, params) {
+        resolve: function (root, params) {
           const driverModel = new DriverModel(params);
-          const newDrive = driverModel.save().then((result) => {
-            console.log(result);
-            return DriverModel.findByIdAndUpdate(
-              result.id,
-              {
-                //set initial pass freedom
-                pass: crypto.createHash('md5').update('freedom').digest("hex")
-              },
-              function (err) {
-                if (err) return next(err);
-              }
-            );
-          });
+          const newDrive = driverModel.save();
+          if (!newDrive) {
+            throw new Error('Error');
+          }
           return newDrive;
         },
       },
@@ -138,8 +136,8 @@ var mutation = new GraphQLObjectType({
             type: new GraphQLNonNull(GraphQLString),
           },
           pass: {
-            type: new GraphQLNonNull(GraphQLString),
-          }
+            type: GraphQLString,
+          },
         },
         resolve(root, params) {
           return DriverModel.findByIdAndUpdate(
@@ -158,7 +156,7 @@ var mutation = new GraphQLObjectType({
           );
         },
       },
-      removeDrive: {
+      removeDriver: {
         type: driverType,
         args: {
           id: {
@@ -168,7 +166,7 @@ var mutation = new GraphQLObjectType({
         resolve(root, params) {
           const remDrive = DriverModel.findByIdAndRemove(params.id).exec();
           if (!remDrive) {
-            throw new Error("Error");
+            throw new Error('Error');
           }
           return remDrive;
         },

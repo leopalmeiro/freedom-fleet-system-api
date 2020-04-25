@@ -53,10 +53,16 @@ var queryType = new GraphQLObjectType({
       vehicles: {
         type: new GraphQLList(vehicleType),
         resolve: function () {
-          let vehicles = VehicleModel.find().exec();
+          let vehicles = VehicleModel.find();
+          vehicles.exec((err, vehicles) => {
+            console.log(vehicles);
+            
+          })
           if (!vehicles) {
             throw new Error("Error");
           }
+          console.log('Vehicle findall' + vehicles);
+          
           return vehicles;
         },
       },
@@ -107,7 +113,7 @@ var mutation = new GraphQLObjectType({
         resolve: function(root, params) {
           const vehicleModel = new VehicleModel(params);
           const newVehicle = vehicleModel.save().then((result) => {
-            console.log(result);
+            console.log('Result save' + result);
             return VehicleModel.findByIdAndUpdate(
               result._id,
               {
@@ -148,7 +154,9 @@ var mutation = new GraphQLObjectType({
               model: params.model,
               year: params.year,
               plate: params.plate,
-              qrdata: params.qrdata,
+              type: params.type,
+              //qrdata never will be updated
+              //qrdata: params.qrdata,
               dt_updated: Date.now(),
             },
             function (err) {
